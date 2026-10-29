@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pes Kit Archive</title>
+<style>
+:root{--bg:#0b1020;--card:#151c33;--card2:#1c2545;--tx:#eef1fb;--mu:#8e98bd;--ac:#2fd6a1;--ac2:#4c7dff;--bd:#2a3560;--dg:#ff5c7a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f1f3fa;--card:#fff;--card2:#e8ecfa;--tx:#141a33;--mu:#5d6788;--bd:#d3d9ee}}
+:root[data-theme="dark"]{--bg:#0b1020}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);padding:12px 18px;display:flex;align-items:center;gap:12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--card);z-index:10}
+header h1{margin:0;font-size:20px;letter-spacing:.5px;cursor:pointer}
+header h1 span{color:var(--ac)}
+main{max-width:1100px;margin:0 auto;padding:18px}
+.crumbs{color:var(--mu);font-size:14px;margin-bottom:14px}.crumbs a{color:var(--ac2);cursor:pointer}
+input,select,button{font:inherit;color:var(--tx)}
+input,select{background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;width:100%}
+button{background:var(--ac);color:#04251b;border:0;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer}
+button.sec{background:var(--card2);color:var(--tx);border:1px solid var(--bd)}
+button.del{background:transparent;color:var(--dg);padding:4px 8px;font-size:13px}
+button:disabled{opacity:.5}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.tab{padding:6px 12px;border-radius:99px;border:1px solid var(--bd);background:var(--card);cursor:pointer;font-size:13px}
+.tab.on{background:var(--ac2);border-color:var(--ac2);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;cursor:pointer;transition:.15s}
+.c:hover{border-color:var(--ac);transform:translateY(-2px)}
+.c b{display:block}.c small{color:var(--mu)}
+.badge{display:inline-block;background:var(--ac);color:#04251b;border-radius:99px;padding:1px 8px;font-size:12px;font-weight:700;margin-left:6px}
+.lg{display:flex;gap:12px;align-items:center}
+.lg img.logo,.ph{width:56px;height:56px;object-fit:contain;border-radius:10px;background:#fff2;flex:none}
+.ph{display:grid;place-items:center;color:var(--mu);font-size:22px}
+.kits{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.k{background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.k img{width:100%;aspect-ratio:1;object-fit:contain;background:var(--card2);cursor:zoom-in;display:block}
+.k div{padding:10px}.k small{color:var(--mu)}
+form,.panel{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:16px 0}
+form{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+form .full{grid-column:1/-1}
+label{font-size:13px;color:var(--mu);display:grid;gap:4px}
+h2{margin:6px 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.empty{color:var(--mu);padding:24px;text-align:center;border:1px dashed var(--bd);border-radius:12px}
+#lb{position:fixed;inset:0;background:#000d;display:none;place-items:center;z-index:50;cursor:zoom-out}
+#lb img{max-width:94vw;max-height:90vh}
+.note{font-size:13px;color:var(--mu)}
+
+.login{display:flex;gap:6px;margin-left:auto}.login input{width:150px;padding:6px 8px}.login button{padding:6px 12px}</style>
+</head>
+<body>
+<header><h1 id="home">PES <span>KIT</span> ARCHIVE</h1><div class="login" id="auth"></div></header>
+<main id="app"></main>
+<div id="lb"><img alt=""></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+// ====== CONFIGURA ESTO (Supabase → Project Settings → API) ======
+const SUPABASE_URL="https://TU-PROYECTO.supabase.co";
+const SUPABASE_KEY="TU-ANON-PUBLIC-KEY";
+// =================================================================
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const CONF={
+UEFA:"Albania,Alemania,Andorra,Armenia,Austria,Azerbaiyán,Bélgica,Bielorrusia,Bosnia y Herzegovina,Bulgaria,Chequia,Chipre,Croacia,Dinamarca,Escocia,Eslovaquia,Eslovenia,España,Estonia,Finlandia,Francia,Gales,Georgia,Gibraltar,Grecia,Hungría,Inglaterra,Irlanda,Irlanda del Norte,Islandia,Islas Feroe,Israel,Italia,Kazajistán,Kosovo,Letonia,Liechtenstein,Lituania,Luxemburgo,Macedonia del Norte,Malta,Moldavia,Montenegro,Noruega,Países Bajos,Polonia,Portugal,Rumanía,Rusia,San Marino,Serbia,Suecia,Suiza,Turquía,Ucrania",
+CONMEBOL:"Argentina,Bolivia,Brasil,Chile,Colombia,Ecuador,Paraguay,Perú,Uruguay,Venezuela",
+CONCACAF:"Anguila,Antigua y Barbuda,Aruba,Bahamas,Barbados,Belice,Bermudas,Canadá,Costa Rica,Cuba,Curazao,Dominica,El Salvador,Estados Unidos,Granada,Guatemala,Guyana,Haití,Honduras,Islas Caimán,Islas Turcas y Caicos,Islas Vírgenes Británicas,Islas Vírgenes de EE. UU.,Jamaica,México,Montserrat,Nicaragua,Panamá,Puerto Rico,República Dominicana,San Cristóbal y Nieves,San Vicente y las Granadinas,Santa Lucía,Surinam,Trinidad y Tobago",
+CAF:"Angola,Argelia,Benín,Botsuana,Burkina Faso,Burundi,Cabo Verde,Camerún,Chad,Comoras,Congo,Costa de Marfil,Egipto,Eritrea,Esuatini,Etiopía,Gabón,Gambia,Ghana,Guinea,Guinea Ecuatorial,Guinea-Bisáu,Kenia,Lesoto,Liberia,Libia,Madagascar,Malaui,Malí,Marruecos,Mauricio,Mauritania,Mozambique,Namibia,Níger,Nigeria,RD Congo,República Centroafricana,Ruanda,Santo Tomé y Príncipe,Senegal,Seychelles,Sierra Leona,Somalia,Sudáfrica,Sudán,Sudán del Sur,Tanzania,Togo,Túnez,Uganda,Yibuti,Zambia,Zimbabue",
+AFC:"Afganistán,Arabia Saudita,Australia,Bangladés,Baréin,Brunéi,Bután,Camboya,Catar,China,Corea del Norte,Corea del Sur,Emiratos Árabes Unidos,Filipinas,Guam,Hong Kong,India,Indonesia,Irak,Irán,Islas Marianas del Norte,Japón,Jordania,Kirguistán,Kuwait,Laos,Líbano,Macao,Malasia,Maldivas,Mongolia,Myanmar,Nepal,Omán,Pakistán,Palestina,Singapur,Siria,Tailandia,Taipéi Chino,Tayikistán,Timor Oriental,Turkmenistán,Uzbekistán,Vietnam,Yemen",
+OFC:"Fiyi,Islas Cook,Islas Salomón,Nueva Caledonia,Nueva Zelanda,Papúa Nueva Guinea,Samoa,Samoa Americana,Tahití,Tonga,Vanuatu"};
+const slug=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const COUNTRIES=[];for(const k in CONF)CONF[k].split(",").forEach(n=>COUNTRIES.push({n,id:slug(n),conf:k}));
+COUNTRIES.sort((a,b)=>a.n.localeCompare(b.n,"es"));
+const KIT_TYPES=["Local","Visitante","Tercera","Portero","Especial / Aniversario","Retro"];
+const $=s=>document.querySelector(s),app=$("#app");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const img=p=>`${SUPABASE_URL}/storage/v1/object/public/kits/${p}`;
+let leagues=[],kits=[],conf="Todas",q="",admin=false,loaded=false;
+
+async function compress(file,max=900){
+  const bm=await createImageBitmap(file),r=Math.min(1,max/Math.max(bm.width,bm.height));
+  const c=document.createElement("canvas");c.width=Math.round(bm.width*r);c.height=Math.round(bm.height*r);
+  c.getContext("2d").drawImage(bm,0,0,c.width,c.height);
+  return new Promise(res=>c.toBlob(b=>res(b),"image/webp",.82));
+}
+async function upload(file){
+  const blob=await compress(file),path=crypto.randomUUID()+".webp";
+  const {error}=await sb.storage.from("kits").upload(path,blob,{contentType:"image/webp"});
+  if(error)throw error;return path;
+}
+async function load(){
+  const [a,b]=await Promise.all([sb.from("leagues").select("*"),sb.from("kits").select("*")]);
+  if(a.error||b.error){app.innerHTML='<p class="empty">Error conectando con Supabase. Revisa URL y clave en index.html.</p>';return}
+  leagues=a.data;kits=b.data;loaded=true;render();
+}
+function authUI(){
+  $("#auth").innerHTML=admin?'<button class="sec" id="lo">Salir</button>':'<input id="em" type="email" placeholder="email"><input id="pw" type="password" placeholder="contraseña"><button id="li">Entrar</button>';
+  if(admin)$("#lo").onclick=()=>sb.auth.signOut();
+  else $("#li").onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$("#em").value,password:$("#pw").value});if(error)alert("Login incorrecto")};
+}
+sb.auth.onAuthStateChange((_e,s)=>{admin=!!s;authUI();render()});
+
+const route=()=>{const h=location.hash.slice(1);return h.startsWith("c-")?{v:"c",id:h.slice(2)}:h.startsWith("l-")?{v:"l",id:h.slice(2)}:{v:"h"}};
+const go=h=>location.hash=h;
+$("#home").onclick=()=>{location.hash="";render()};
+window.addEventListener("hashchange",render);
+
+function render(){
+  const r=route();
+  if(r.v==="c"){const c=COUNTRIES.find(x=>x.id===r.id);return c?countryView(c):homeView()}
+  if(r.v==="l"){const l=leagues.find(x=>x.id===r.id);if(l)return leagueView(l);if(!loaded)return app.innerHTML='<p class="note">Cargando…</p>';return homeView()}
+  homeView();
+}
+function homeView(){
+  const counts={};leagues.forEach(l=>counts[l.country]=(counts[l.country]||0)+1);
+  const list=COUNTRIES.filter(c=>(conf==="Todas"||c.conf===conf)&&c.n.toLowerCase().includes(q.toLowerCase()));
+  app.innerHTML=`<div class="row"><h2>Países (${COUNTRIES.length} federaciones FIFA)</h2><div style="width:min(300px,100%)"><input id="s" placeholder="Buscar país…" value="${esc(q)}"></div></div>
+  <div class="tabs">${["Todas",...Object.keys(CONF)].map(k=>`<span class="tab ${k===conf?"on":""}" data-k="${k}">${k}</span>`).join("")}</div>
+  <div class="grid">${list.map(c=>`<div class="c" data-id="${c.id}"><b>${esc(c.n)}${counts[c.id]?`<span class="badge">${counts[c.id]}</span>`:""}</b><small>${c.conf}</small></div>`).join("")||'<p class="empty">Sin resultados</p>'}</div>`;
+  app.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{conf=t.dataset.k;homeView()});
+  app.querySelectorAll(".c").forEach(t=>t.onclick=()=>go("c-"+t.dataset.id));
+  const s=$("#s");s.oninput=()=>{q=s.value;const p=s.selectionStart;homeView();const n=$("#s");n.focus();n.setSelectionRange(p,p)};
+}
+function countryView(c){
+  const ls=leagues.filter(l=>l.country===c.id).sort((a,b)=>a.tier-b.tier);
+  app.innerHTML=`<div class="crumbs"><a href="#">Inicio</a> › ${esc(c.n)}</div>
+  <div class="row"><h2>${esc(c.n)} <small class="note">${c.conf}</small></h2>${admin?'<button id="addL">+ Añadir liga</button>':""}</div><div id="form"></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${ls.map(l=>`<div class="c lg" data-id="${l.id}">${l.logo_path?`<img class="logo" src="${img(l.logo_path)}" alt="">`:'<div class="ph">⚽</div>'}<div><b>${esc(l.name)}</b><small>${esc(l.tier_name||"División "+l.tier)}${l.teams?" · "+l.teams+" equipos":""}<br>${kits.filter(k=>k.league_id===l.id).length} kits</small></div></div>`).join("")}</div>
+  ${ls.length?"":'<p class="empty">Todavía no hay ligas en este país.</p>'}`;
+  app.querySelectorAll(".c").forEach(t=>t.onclick=()=>go("l-"+t.dataset.id));
+  if(admin)$("#addL").onclick=()=>leagueForm(c);
+}
+function leagueForm(c){
+  $("#form").innerHTML=`<form id="lf"><label>Nombre de la liga *<input name="name" required placeholder="LaLiga EA Sports"></label>
+  <label>Nombre de la categoría<input name="tier_name" placeholder="Primera División"></label>
+  <label>Nivel (1 = máxima)<input name="tier" type="number" min="1" value="1"></label>
+  <label>Nº de equipos<input name="teams" type="number" min="2" placeholder="20"></label>
+  <label>Temporada actual<input name="season" placeholder="2025/26"></label>
+  <label class="full">Logo de la liga<input name="logo" type="file" accept="image/*"></label>
+  <div class="full row"><button>Guardar liga</button><button type="button" class="sec" id="x">Cancelar</button></div></form>`;
+  $("#x").onclick=()=>$("#form").innerHTML="";
+  $("#lf").onsubmit=async e=>{e.preventDefault();const f=e.target,btn=f.querySelector("button");btn.disabled=true;
+    try{const d=new FormData(f),file=d.get("logo");const logo_path=file&&file.size?await upload(file):null;
+      const {error}=await sb.from("leagues").insert({country:c.id,name:d.get("name").trim(),tier_name:d.get("tier_name").trim(),tier:+d.get("tier")||1,teams:+d.get("teams")||null,season:d.get("season").trim(),logo_path});
+      if(error)throw error;await load();
+    }catch(err){alert("No se pudo guardar: "+(err.message||err));btn.disabled=false}};
+}
+function leagueView(l){
+  const c=COUNTRIES.find(x=>x.id===l.country);
+  const ks=kits.filter(k=>k.league_id===l.id).sort((a,b)=>(a.team||"").localeCompare(b.team||"","es")||(b.season||"").localeCompare(a.season||""));
+  app.innerHTML=`<div class="crumbs"><a href="#">Inicio</a> › <a href="#c-${c.id}">${esc(c.n)}</a> › ${esc(l.name)}</div>
+  <div class="row"><div class="lg">${l.logo_path?`<img class="logo" src="${img(l.logo_path)}" alt="">`:'<div class="ph">⚽</div>'}<div><h2 style="margin:0">${esc(l.name)}</h2><small class="note">${esc(l.tier_name||"")}${l.season?" · "+esc(l.season):""}</small></div></div>
+  <div>${admin?'<button id="addK">+ Añadir kit</button> <button class="del" id="delL">Eliminar liga</button>':""}</div></div><div id="form"></div>
+  <div class="kits">${ks.map(k=>`<div class="k"><img src="${img(k.img_path)}" loading="lazy" alt="${esc(k.team)}"><div><b>${esc(k.team)}</b><br><small>${esc(k.type)} · ${esc(k.season||"")}</small>${k.notes?`<br><small>${esc(k.notes)}</small>`:""}${admin?`<br><button class="del" data-d="${k.id}">Eliminar</button>`:""}</div></div>`).join("")}</div>
+  ${ks.length?"":'<p class="empty">Aún no hay kits en esta liga.</p>'}`;
+  app.querySelectorAll(".k img").forEach(i=>i.onclick=()=>{$("#lb img").src=i.src;$("#lb").style.display="grid"});
+  app.querySelectorAll("[data-d]").forEach(b=>b.onclick=async()=>{if(!confirm("¿Eliminar este kit?"))return;const k=kits.find(x=>x.id===b.dataset.d);await sb.from("kits").delete().eq("id",k.id);await sb.storage.from("kits").remove([k.img_path]);load()});
+  if(admin){$("#addK").onclick=()=>kitForm(l);
+    $("#delL").onclick=async()=>{if(!confirm("¿Eliminar la liga y todos sus kits?"))return;const files=ks.map(k=>k.img_path).concat(l.logo_path||[]);await sb.from("leagues").delete().eq("id",l.id);if(files.length)await sb.storage.from("kits").remove(files);location.hash="c-"+c.id;load()}}
+}
+function kitForm(l){
+  $("#form").innerHTML=`<form id="kf"><label>Equipo *<input name="team" required placeholder="Real Madrid"></label>
+  <label>Temporada *<input name="season" required placeholder="2025/26"></label>
+  <label>Tipo<select name="type">${KIT_TYPES.map(t=>`<option>${t}</option>`).join("")}</select></label>
+  <label>Notas (patrocinador, fabricante…)<input name="notes" placeholder="Adidas / Emirates"></label>
+  <label class="full">Imágenes del kit * (varias a la vez: un kit por imagen)<input name="img" type="file" accept="image/*" multiple required></label>
+  <div class="full row"><button>Guardar kit</button><button type="button" class="sec" id="x">Cancelar</button></div></form>`;
+  $("#x").onclick=()=>$("#form").innerHTML="";
+  $("#kf").onsubmit=async e=>{e.preventDefault();const f=e.target,btn=f.querySelector("button");btn.disabled=true;btn.textContent="Subiendo…";
+    try{const d=new FormData(f);for(const file of d.getAll("img")){if(!file.size)continue;const img_path=await upload(file);
+      const {error}=await sb.from("kits").insert({league_id:l.id,team:d.get("team").trim(),season:d.get("season").trim(),type:d.get("type"),notes:d.get("notes").trim(),img_path});if(error)throw error}
+      await load();
+    }catch(err){alert("No se pudo guardar: "+(err.message||err));btn.disabled=false;btn.textContent="Guardar kit"}};
+}
+$("#lb").onclick=()=>$("#lb").style.display="none";
+authUI();render();load();
+</script>
+</body>
+</html>
